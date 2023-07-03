@@ -38,7 +38,7 @@ class SentenceEmbedder(nn.Module):
                  pretrained_model:str, 
                  pooling_layer:nn.Module, 
                  normalize_layer:nn.Module,
-                 max_token: int = 512) -> nn.Module:
+                 max_token: int = 512):
         super().__init__()
         self.model = AutoModel.from_pretrained(pretrained_model)
         self.pooling_layer = pooling_layer
