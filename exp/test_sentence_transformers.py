@@ -4,6 +4,8 @@ import torch.nn.functional as F
 
 
 # Mean Pooling - Take attention mask into account for correct averaging
+
+
 def mean_pooling(model_output, attention_mask):
     token_embeddings = model_output[
         0
@@ -34,7 +36,8 @@ with torch.no_grad():
 print(f"==>> model_output: {model_output}")
 # Perform pooling
 sentence_embeddings = mean_pooling(model_output, encoded_input["attention_mask"])
-
+sentence_embeddings = F.normalize(sentence_embeddings, p=2, dim=1)
 
 # Normalize embeddings
+sentence_embeddings = F.normalize(sentence_embeddings, p=2, dim=1)
 print(f"==>> sentence_embeddings: {sentence_embeddings}")

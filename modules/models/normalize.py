@@ -1,3 +1,8 @@
+import torch.nn as nn
+from torch import Tensor
+import torch.nn.functional as F
+
+
 class Normalize(nn.Module):
     def __init__(self):
         super(Normalize, self).__init__()

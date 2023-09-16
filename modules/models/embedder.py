@@ -1,13 +1,11 @@
 from typing import Dict, Literal, Union
-
 import torch.nn as nn
-
 from torch import Tensor
 from transformers import AutoModel
 from transformers.modeling_outputs import BaseModelOutputWithPoolingAndCrossAttentions
 from transformers.tokenization_utils_base import BatchEncoding
-
 from .pooling import ClsPooling, MeanPooling
+from .normalize import Normalize
 
 
 class SentenceEmbedder(nn.Module):
@@ -41,9 +39,7 @@ class SentenceEmbedder(nn.Module):
             self.pooling_layer = ClsPooling()
 
         if normalize_layer == "l2":
-            self.normalize_layer = nn.LayerNorm(
-                self.model.config.hidden_size, eps=1e-12
-            )
+            self.normalize_layer = Normalize()
         elif normalize_layer == None:
             self.normalize_layer = nn.Identity()
 
@@ -54,5 +50,4 @@ class SentenceEmbedder(nn.Module):
         outputs = self.model(**inputs)
         sentence_embedding = self.pooling_layer(outputs, inputs["attention_mask"])
         sentence_embedding = self.normalize_layer(sentence_embedding)
-
         return sentence_embedding
