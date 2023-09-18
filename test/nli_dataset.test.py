@@ -23,21 +23,11 @@ def collate_fn(batch):
     )
 
 
-sentence_1 = [
-    "This is an example sentence",
-    "Each sentence is converted",
-    "i love you",
-    "sucks",
-]
-
-token = tokenizer(sentence_1, padding=True, truncation=True, return_tensors="pt")
-print(f"==>> token: {token}")
-
-path = "./data/dummy_data.jsonl"
+path = "./data/carles-undergrad-thesis/indo-snli_train.json"
 
 dataset = NLIDataset(path)
 print(f"==>> dataset[0]: {dataset[0]}")
-data_loader = DataLoader(dataset, batch_size=2, collate_fn=collate_fn)
+data_loader = DataLoader(dataset, batch_size=10, collate_fn=collate_fn)
 
 data = next(iter(data_loader))
 print(f"==>> data: {data}")

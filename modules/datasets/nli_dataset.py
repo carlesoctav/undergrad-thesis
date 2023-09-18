@@ -11,18 +11,18 @@ class NLIDataset(Dataset):
     ):
         self.sentence_1 = []
         self.sentence_2 = []
-        self.labels = []
+        self.label = []
         self.metadata = {
             "path": path,
         }
 
         with open(path, "r") as f:
-            self.data = json.load(f)
+            self.data = [json.loads(line) for line in f]
 
         for datum in self.data:
             self.sentence_1.append(datum["sentence_1"])
             self.sentence_2.append(datum["sentence_2"])
-            self.labels.append(datum["label"])
+            self.label.append(datum["label"])
 
     def __len__(self):
         return len(self.data)
@@ -31,5 +31,5 @@ class NLIDataset(Dataset):
         return [
             self.sentence_1[idx],
             self.sentence_2[idx],
-            self.labels[idx],
+            self.label[idx],
         ]

@@ -32,14 +32,9 @@ embedder = SentenceEmbedder(
     normalize_layer=None,
 )
 embedder_trainer = SoftMaxTrainer(embedder, num_labels=3)
-dataset = NLIDataset("./data/dummy_data.jsonl")
-data_loader = DataLoader(dataset, batch_size=2, collate_fn=batch_tokenize)
+dataset = NLIDataset("./data/carles-undergrad-thesis/indo-snli_train.json")
+data_loader = DataLoader(dataset, batch_size=300, collate_fn=batch_tokenize)
 
-for data in data_loader:
-    print(f"==>> data: {data}")
-    a = embedder_trainer._test_traning_step(data)
-    print(f"==>> a: {a}")
-
-trainer = pl.Trainer(accelerator="cpu", max_epochs=10)
+trainer = pl.Trainer(accelerator="tpu", max_epochs=10, devices=8, logger=True)
 
 trainer.fit(embedder_trainer, data_loader)
