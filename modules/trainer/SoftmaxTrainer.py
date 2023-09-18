@@ -55,7 +55,6 @@ class SoftMaxTrainer(pl.LightningModule):
         diff = torch.abs(sentence_1_embedding - sentence_2_embedding)
         output = torch.cat([sentence_1_embedding, sentence_2_embedding, diff], dim=1)
         logits = self.classifier(output)
-
         if labels is not None:
             loss = self.criterion(logits, labels)
             return loss

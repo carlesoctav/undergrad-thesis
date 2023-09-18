@@ -20,16 +20,21 @@ class NLIDataset(Dataset):
             self.data = [json.loads(line) for line in f]
 
         for datum in self.data:
-            self.sentence_1.append(datum["sentence_1"])
-            self.sentence_2.append(datum["sentence_2"])
-            self.label.append(datum["label"])
+            if (
+                datum["label"] in [0, 1, 2]
+                and datum["sentence_1"]
+                and datum["sentence_2"]
+            ):
+                self.sentence_1.append(datum["sentence_1"].strip())
+                self.sentence_2.append(datum["sentence_2"].strip())
+                self.label.append(datum["label"])
 
     def __len__(self):
-        return len(self.data)
+        return len(self.label)
 
     def __getitem__(self, idx):
-        return [
+        return (
             self.sentence_1[idx],
             self.sentence_2[idx],
             self.label[idx],
-        ]
+        )
