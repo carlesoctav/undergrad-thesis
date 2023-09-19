@@ -1,6 +1,6 @@
 from modules.models.embedder import SentenceEmbedder
 from modules.trainer.SoftmaxTrainer import SoftMaxTrainer
-from modules.datasets.nli_dataset import NLIDataset
+from experiments.nli_model.nli_dataset import NLIDataset
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 import torch
