@@ -1,6 +1,6 @@
 from modules.models.embedder import SentenceEmbedder
 from modules.trainer.SoftmaxTrainer import SoftMaxTrainer
-from experiments.nli_model.nli_dataset import NLIDataset
+from modules.dataset.nli_dataset import NLIDataset
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 import torch
@@ -39,9 +39,9 @@ embedder = SentenceEmbedder(
 )
 
 embedder_trainer = SoftMaxTrainer(embedder, num_labels=3)
-dataset = NLIDataset("./data/carles-undergrad-thesis/indo-snli_test.json")
+dataset = NLIDataset("./data/carles-undergrad-thesis/indo-snli_test.jsonl")
 data_loader = DataLoader(
-    dataset, batch_size=128, collate_fn=batch_tokenize, num_workers=4
+    dataset, batch_size=16, collate_fn=batch_tokenize, num_workers=4
 )
 
 # embedder_trainer.to("cuda")
@@ -53,6 +53,6 @@ data_loader = DataLoader(
 
 #     embedder_trainer._test_traning_step(batch)
 
-trainer = pl.Trainer(accelerator="gpu", max_epochs=2, logger=True)
+trainer = pl.Trainer(accelerator="cpu", max_epochs=2, logger=True)
 
 trainer.fit(embedder_trainer, data_loader)

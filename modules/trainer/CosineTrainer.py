@@ -10,23 +10,19 @@ import numpy as np
 from transformers import get_linear_schedule_with_warmup
 
 
-class SoftMaxTrainer(pl.LightningModule):
+class CosineTrainer(pl.LightningModule):
     def __init__(
         self,
         embedder: SentenceEmbedder,
-        num_labels: int,
         max_iters: int,
+        loss_fct: nn.Module = nn.MSELoss(),
         **kwargs,
     ):
         super().__init__()
-        self.save_hyperparameters(ignore=["embedder"])
+        self.save_hyperparameters(ignore=["embedder", "loss_fct"])
         print(f"==>> self.hparams: {self.hparams}")
         self.embedder = embedder
-        self.dim = self.embedder.embedder_metadata[
-            "pretrained_model_config"
-        ].hidden_size
-        self.classifier = nn.Linear(3 * self.dim, num_labels)
-        self.criterion = nn.CrossEntropyLoss()
+        self.lost_fct = loss_fct
 
     def forward(
         self,
@@ -43,12 +39,8 @@ class SoftMaxTrainer(pl.LightningModule):
         sentence_1, sentence_2, labels = batch
         sentence_1_embedding = self.embedder(sentence_1)
         sentence_2_embedding = self.embedder(sentence_2)
-        diff = torch.abs(sentence_1_embedding - sentence_2_embedding)
-        output = torch.cat([sentence_1_embedding, sentence_2_embedding, diff], dim=1)
-        logits = self.classifier(output)
-        loss = self.criterion(logits, labels.view(-1))
-        acc = (logits.argmax(dim=-1) == labels).float().mean()
-        self.log("train_acc", acc, on_step=False, on_epoch=True)
+        output = torch.cosine_similarity(sentence_1_embedding, sentence_2_embedding)
+        loss = self.lost_fct(output, labels.view(-1))
         self.log("train_loss", loss, on_step=False, on_epoch=True)
 
         return loss
@@ -61,11 +53,9 @@ class SoftMaxTrainer(pl.LightningModule):
         sentence_1, sentence_2, labels = batch
         sentence_1_embedding = self.embedder(sentence_1)
         sentence_2_embedding = self.embedder(sentence_2)
-        diff = torch.abs(sentence_1_embedding - sentence_2_embedding)
-        output = torch.cat([sentence_1_embedding, sentence_2_embedding, diff], dim=1)
-        logits = self.classifier(output).argmax(dim=-1)
-        acc = (logits == labels).float().mean()
-        self.log("val_acc", acc)
+        output = torch.cosine_similarity(sentence_1_embedding, sentence_2_embedding)
+        loss = self.lost_fct(output, labels.view(-1))
+        self.log("val_loss", loss, on_step=False, on_epoch=True)
 
     def test_step(
         self,
@@ -75,11 +65,9 @@ class SoftMaxTrainer(pl.LightningModule):
         sentence_1, sentence_2, labels = batch
         sentence_1_embedding = self.embedder(sentence_1)
         sentence_2_embedding = self.embedder(sentence_2)
-        diff = torch.abs(sentence_1_embedding - sentence_2_embedding)
-        output = torch.cat([sentence_1_embedding, sentence_2_embedding, diff], dim=1)
-        logits = self.classifier(output).argmax(dim=-1)
-        acc = (logits == labels).float().mean()
-        self.log("val_acc", acc)
+        output = torch.cosine_similarity(sentence_1_embedding, sentence_2_embedding)
+        loss = self.lost_fct(output, labels.view(-1))
+        self.log("test_loss", loss, on_step=False, on_epoch=True)
 
     def configure_optimizers(self) -> Any:
         if self.hparams["optimizer_name"] == "Adam":
@@ -102,12 +90,6 @@ class SoftMaxTrainer(pl.LightningModule):
         sentence_1, sentence_2, labels = inputs
         sentence_1_embedding = self.embedder(sentence_1)
         sentence_2_embedding = self.embedder(sentence_2)
-        diff = torch.abs(sentence_1_embedding - sentence_2_embedding)
-        output = torch.cat([sentence_1_embedding, sentence_2_embedding, diff], dim=1)
-        logits = self.classifier(output)
-        if labels is not None:
-            loss = self.criterion(logits, labels)
-            acc = (logits.argmax(dim=-1) == labels).float().mean()
-            return loss
-        else:
-            return output, logits
+        output = torch.cosine_similarity(sentence_1_embedding, sentence_2_embedding)
+        loss = self.lost_fct(output, labels.view(-1))
+        return loss

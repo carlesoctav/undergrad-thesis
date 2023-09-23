@@ -1,0 +1,28 @@
+model:
+  pretrained_model: sentence-transformers/all-MiniLM-L6-v2
+  pooling_layer: mean
+  normalize_layer:
+
+optimizer:
+  optimizer_name: Adam
+  optimizer_hparams:
+    lr: 0.00001
+  num_warmup_steps: 1000
+
+training:
+  default_root_dir: ./logs
+  accelerator: cpu
+  max_epochs: 20
+    
+
+dataset:
+  train: ../../data/carles-undergrad-thesis/indo-snli_test.jsonl
+  val: ../../data/carles-undergrad-thesis/indo-snli_test.jsonl
+  test: ../../data/carles-undergrad-thesis/indo-snli_test.jsonl
+  batch_size: 4
+  num_workers: 2
+    
+additional:
+  seed: 32
+  push_to_hub: True
+  model_name_hub: carles-undergrad-thesis/indo-snli
