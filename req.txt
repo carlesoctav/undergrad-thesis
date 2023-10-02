@@ -1,0 +1,4 @@
+beir
+transformers
+sentence-transformers
+pyprojroot
