@@ -44,7 +44,7 @@ model = models.SentenceBERT(model_path)
 ########################################################
 
 faiss_search = FlatIPFaissSearch(model, 
-                                 batch_size=512)
+                                 batch_size=256)
 
 ######################################################
 #### PQ: Product Quantization (Exhaustive Search) ####
