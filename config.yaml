@@ -1,0 +1,30 @@
+model:
+  pretrained_model: indolem/indobert-base-uncased
+  pooling_layer: mean
+  normalize_layer:
+  max_length : 128
+
+optimizer:
+  optimizer_name: Adam
+  optimizer_hparams:
+    lr: 0.00002
+  num_warmup_steps: 1000
+
+training:
+  default_root_dir: .
+  accelerator: gpu
+  max_epochs: 5
+
+dataset:
+  train: ../../data/carles-undergrad-thesis/indo-snli_test.jsonl
+  val: ../../data/carles-undergrad-thesis/indo-snli_validation.jsonl
+  test: ../../data/carles-undergrad-thesis/indo-snli_test.jsonl
+  batch_size: 64
+  num_workers: 2
+    
+additional:
+  train: True
+  save_model: True
+  push_to_hub: True
+  seed: 32
+  model_name_hub: carles-undergrad-thesis/indobert-snli
