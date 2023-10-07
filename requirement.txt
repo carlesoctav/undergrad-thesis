@@ -1,5 +1,5 @@
 torch
 datasets
-transformers
+git+https://github.com/UKPLab/sentence-transformers.git
 lightning
 pyserini

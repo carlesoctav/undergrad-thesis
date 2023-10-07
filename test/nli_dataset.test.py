@@ -1,4 +1,4 @@
-from modules.dataset.nli_dataset import NLIDataset
+from modules.datasets.nli_dataset import NLIDataset
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 import torch

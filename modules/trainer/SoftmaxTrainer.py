@@ -79,7 +79,7 @@ class SoftMaxTrainer(pl.LightningModule):
         output = torch.cat([sentence_1_embedding, sentence_2_embedding, diff], dim=1)
         logits = self.classifier(output).argmax(dim=-1)
         acc = (logits == labels).float().mean()
-        self.log("val_acc", acc)
+        self.log("test_acc", acc)
 
     def configure_optimizers(self) -> Any:
         if self.hparams["optimizer_name"] == "Adam":

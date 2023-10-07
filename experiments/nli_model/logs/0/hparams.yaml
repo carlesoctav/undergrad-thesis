@@ -1,0 +1,6 @@
+max_iters: 770
+num_labels: 3
+num_warmup_steps: 1000
+optimizer_hparams:
+  lr: 2.0e-05
+optimizer_name: Adam
