@@ -3,6 +3,8 @@ model:
   pooling_layer: mean
   normalize_layer:
   max_length : 128
+  triplet_margin: 0.5
+  distance_metric: COSINE
 
 optimizer:
   optimizer_name: Adam
@@ -16,10 +18,10 @@ training:
   max_epochs: 5
 
 dataset:
-  train: ../../data/carles-undergrad-thesis/indo-snli_test.jsonl
-  val: ../../data/carles-undergrad-thesis/indo-snli_validation.jsonl
-  test: ../../data/carles-undergrad-thesis/indo-snli_test.jsonl
-  batch_size: 64
+  train: ../../data/indo-mmarco-500k.jsonl
+  val: ../../data/indo-mmarco-500k.jsonl
+  test: ../../data/indo-mmarco-500k.jsonl
+  batch_size: 32
   num_workers: 2
     
 additional:

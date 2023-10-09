@@ -1,8 +1,0 @@
-python -m pyserini.encode \
-  input   --corpus data/dummy_data.jsonl \
-  output  --embeddings data/dummy_data_emb.jsonl \
-  encoder --encoder carlesoctav/multi-qa-en-id-mMiniLMv2-L6-H384 \
-          --encoder-class sentence-transformers
-          --fields text \ 
-          --device cpu
-          --pooling mean

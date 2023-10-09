@@ -11,6 +11,7 @@ import argparse
 from torch.utils.data import DataLoader
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 
@@ -27,10 +28,18 @@ def batch_tokenize(batch):
         labels.append(item[2])
 
     sentence_1 = tokenizer(
-        sentence_1, padding=True, truncation=True, return_tensors="pt"
+        sentence_1,
+        padding=True,
+        truncation=True,
+        return_tensors="pt",
+        max_length=args["model"]["max_length"],
     )
     sentence_2 = tokenizer(
-        sentence_2, padding=True, truncation=True, return_tensors="pt"
+        sentence_2,
+        padding=True,
+        truncation=True,
+        return_tensors="pt",
+        max_length=args["model"]["max_length"],
     )
 
     labels = torch.tensor(labels, dtype=torch.long)
@@ -57,10 +66,35 @@ def train_model_nli(**kwargs):
         normalize_layer=kwargs["model"]["normalize_layer"],
     )
 
+    finetuned_file = os.path.join(
+        kwargs["training"]["default_root_dir"] + "/best_model.ckpt"
+    )
     trainer = pl.Trainer(
         default_root_dir=kwargs["training"]["default_root_dir"],
         accelerator=device,
         max_epochs=kwargs["training"]["max_epochs"],
+        callbacks=[
+            LearningRateMonitor(logging_interval="epoch"),
+            ModelCheckpoint(
+                monitor="val_acc",
+                mode="max",
+                dirpath=kwargs["training"]["default_root_dir"],
+                filename="best_model",
+            ),
+        ],
+        gradient_clip_val=5.0,
+        logger=[
+            pl.loggers.TensorBoardLogger(
+                save_dir=kwargs["training"]["default_root_dir"],
+                name="logs",
+                version="0",
+            ),
+            pl.loggers.CSVLogger(
+                save_dir=kwargs["training"]["default_root_dir"],
+                name="logs",
+                version="0",
+            ),
+        ],
     )
 
     train_ds = NLIDataset(kwargs["dataset"]["train"])
@@ -91,11 +125,10 @@ def train_model_nli(**kwargs):
             collate_fn=batch_tokenize,
         )
 
-    finetuned_file = os.path.join(kwargs["training"]["default_root_dir"] + ".ckpt")
-
     if os.path.isfile(finetuned_file):
-        print(f"Found pretrained model at {finetuned_file}, loading...")
-        train_model = SoftMaxTrainer.load_from_checkpoint(finetuned_file)
+        print(
+            f"Found pretrained model at {finetuned_file}, loading... unfortunately not supported yet"
+        )
     else:
         pl.seed_everything(kwargs["additional"]["seed"])
         train_model = SoftMaxTrainer(
@@ -104,10 +137,14 @@ def train_model_nli(**kwargs):
             max_iters=kwargs["training"]["max_epochs"] * len(train_loader),
             **kwargs["optimizer"],
         )
+        if kwargs["additional"]["train"]:
+            trainer.fit(
+                model=train_model,
+                train_dataloaders=train_loader,
+                val_dataloaders=val_loader,
+            )
 
-        trainer.fit(train_model, train_loader, val_loader)
-
-    test_result = trainer.test(train_model, test_loader, verbose=False)
+    test_result = trainer.test(train_model, test_loader, verbose=True)
 
     if kwargs["additional"]["push_to_hub"]:
         print(f"Pushing to hub...")
