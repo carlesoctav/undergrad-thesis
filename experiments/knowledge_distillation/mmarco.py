@@ -48,15 +48,17 @@ corpus, queries, qrels = GenericDataLoader(data_folder=data_path + "/indonesian"
 # Dense Retrieval using Different Faiss Indexes (Flat or ANN) ####
 # Provide any Sentence-Transformer or Dense Retriever model.
 
-model_path = "carles-undergrad-thesis/st-indo-bert-mmarco-knowlegde-distillation"
-model_name = "indobert-mmarco-knowlegde-distillation"
+
+
+model_path = "carles-undergrad-thesis/st-distillbert-en-id-mmarco-knowledge-distillation"
+model_name = "st-distillbert-en-id-mmarco-knowledge-distillation"
 model = models.SentenceBERT(model_path)
 
 ########################################################
 #### FLATIP: Flat Inner Product (Exhaustive Search) ####
 ########################################################
 
-faiss_search = FlatIPFaissSearch(model, batch_size=256)
+faiss_search = FlatIPFaissSearch(model, batch_size=2056)
 
 ######################################################
 #### PQ: Product Quantization (Exhaustive Search) ####
@@ -92,7 +94,7 @@ faiss_search = FlatIPFaissSearch(model, batch_size=256)
 # 1. input_dir/{prefix}.{ext}.faiss => which loads the faiss index.
 # 2. input_dir/{prefix}.{ext}.faiss => which loads mapping of ids i.e. (beir-doc-id \t faiss-doc-id).
 
-prefix = "mmarco-indobert-mmarco-knowlegde-distillation"
+prefix = "st-distillbert-en-id-mmarco-knowledge-distillation"
 ext = "flat"
 input_dir = here(f"faiss-index/{model_name}")
 
@@ -100,11 +102,11 @@ if os.path.exists(os.path.join(input_dir, "{}.{}.faiss".format(prefix, ext))):
     faiss_search.load(input_dir=input_dir, prefix=prefix, ext=ext)
 
 #### Retrieve dense results (format of results is identical to qrels)
-retriever = EvaluateRetrieval(faiss_search, score_function="dot")  # or "cos_sim"
+retriever = EvaluateRetrieval(faiss_search, score_function="cos_sim")  # or "cos_sim"
 results = retriever.retrieve(corpus, queries)
 
 
-prefix = "mmarco-indobert-mmarco-knowlegde-distillation"
+prefix = "st-distillbert-en-id-mmarco-knowledge-distillation"
 ext = "flat"
 output_dir = here(f"faiss-index/{model_name}")
 os.makedirs(output_dir, exist_ok=True)
